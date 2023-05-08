@@ -43,29 +43,29 @@ resource "null_resource" "bq_encryption_s_agent" {
 
 # Wait delay after after project destroy
 resource "time_sleep" "wait_bq_a_agent" {
-  create_duration  = "30s"
-#  destroy_duration = "15s"
+  create_duration = "15s"
+  #  destroy_duration = "15s"
   depends_on = [null_resource.bq_encryption_s_agent]
 }
 
 
-resource "google_kms_crypto_key_iam_binding" "kms_key_access_bq" {
-  crypto_key_id = "${google_kms_crypto_key.kms_key.id}"
-   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-   members = ["serviceAccount:bq-${var.project_number}@bigquery-encryption.iam.gserviceaccount.com"]
-  
-    depends_on   = [
-        google_kms_crypto_key.kms_key,
+resource "google_kms_crypto_key_iam_member" "kms_key_access_bq" {
+  crypto_key_id = google_kms_crypto_key.kms_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member        = "serviceAccount:bq-${var.project_number}@bigquery-encryption.iam.gserviceaccount.com"
+
+  depends_on = [
+    google_kms_crypto_key.kms_key,
     time_sleep.wait_bq_a_agent,
-    ]
+  ]
 }
 
 
 # Wait delay after after project destroy
 resource "time_sleep" "wait_bq_iam" {
-  create_duration  = "120s"
+  create_duration  = "45s"
   destroy_duration = "15s"
-  depends_on = [google_kms_crypto_key_iam_binding.kms_key_access_bq]
+  depends_on       = [google_kms_crypto_key_iam_member.kms_key_access_bq]
 }
 
 
@@ -73,17 +73,17 @@ resource "time_sleep" "wait_bq_iam" {
 
 # Create dataset in bigquery
 resource "google_bigquery_dataset" "clear_dataset" {
-  dataset_id = "clear_dataset_${var.random_string}"
-  location   = var.network_region
-  project       = var.project_id
+  dataset_id                 = "clear_dataset_${var.random_string}"
+  location                   = var.network_region
+  project                    = var.project_id
   delete_contents_on_destroy = true
-   default_encryption_configuration {
+  default_encryption_configuration {
     kms_key_name = google_kms_crypto_key.kms_key.id
   }
 
-    depends_on              = [
-   time_sleep.wait_bq_iam,
-    ]
+  depends_on = [
+    time_sleep.wait_bq_iam,
+  ]
 }
 
 
@@ -97,6 +97,6 @@ resource "google_bigquery_table" "clear_table" {
   table_id            = "clear-data"
   description         = "This table contain clear text sensitive data"
   deletion_protection = false
-  depends_on              = [google_bigquery_dataset.clear_dataset]
+  depends_on          = [google_bigquery_dataset.clear_dataset]
 }
 

@@ -21,7 +21,7 @@
 
 output "_01_assured_workload_folder_id" {
   value = google_assured_workloads_workload.abc_app_aw.resources[0].resource_id
- }
+}
 
 
 output "_02_assured_workload_folder_name" {
@@ -42,13 +42,17 @@ output "_05_assured_workload_id" {
 }
 
 /*
+output "_10_policy_service_usage_attributes" {
+  value = data.google_folder_organization_policy.policy_service_usage.list_policy[0].allow[0].values
+}
+# data.google_folder_organization_policy.policy_service_usage.list_policy[0].allow[0].values
+
+
 output "_09_policy_service_usage_attributes" {
   value = data.google_folder_organization_policy.policy_service_usage.list_policy
 }
 
-output "_10_policy_service_usage_attributes" {
-  value = "${concat(data.google_folder_organization_policy.policy_service_usage.list_policy[0].allow[0].values, var.new_services)}"
-}
+
 
 
 output "_11_policy_service_usage_attributes" {

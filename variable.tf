@@ -21,24 +21,22 @@
 variable "organization_id" {
   description = "(Required)" #The organization for the resource
   type        = string
-  default     = "XXXXXXXXXXX"
+  default     = "873180247571"
 }
 
 
 variable "billing_account" {
   description = "(Required)" #Required. Input only. The billing account used for the resources which are direct children of workload. This billing account is initially associated with the resources created as part of Workload creation. After the initial creation of these resources, the customer can change the assigned billing account. The resource name has the form `billingAccounts/{billing_account_id}`. For example, 'billingAccounts/012345-567890-ABCDEF`.
   type        = string
-  default     = "XXXX-XXXX-XXXXX"
+  default     = "01660F-E4C304-5C8D2B"
 }
 
 
 variable "members" {
   description = "An allowed list of members (users, service accounts). The signed-in identity originating the request must be a part of one of the provided members. If not specified, a request may come from any user (logged in/not logged in, etc.). Formats: user:{emailid}, serviceAccount:{emailid}"
   type        = list(string)
-    default = ["user:name@domain.com"]
+  default     = ["user:admin@manishkgaur.altostrat.com"]
 }
-
-
 
 variable "aw_mgmt_project_id" {
   description = "(Required)" #Required. The user-assigned display name of the Workload. When present it must be between 4 to 30 characters. Allowed characters are: lowercase and uppercase letters, numbers, hyphen, and spaces. Example: My Workload
@@ -61,7 +59,7 @@ variable "app_folder_name" {
 variable "assured_workloads_workload_display_name" {
   description = "(Required)" #Required. The user-assigned display name of the Workload. When present it must be between 4 to 30 characters. Allowed characters are: lowercase and uppercase letters, numbers, hyphen, and spaces. Example: My Workload
   type        = string
-  default     = "ABC Assured Workload US"
+  default     = "CSA Assured Workload - IL4"
 }
 
 variable "assured_workloads_workload_compliance_regime" {
@@ -73,8 +71,14 @@ variable "assured_workloads_workload_compliance_regime" {
 variable "assured_workloads_workload_location" {
   description = "(Required)" #The location for the resource
   type        = string
-  default     = "us-west1"
-}
+  default     = "us" # either a single region or country code
+  }
+
+  variable "assured_workloads_label" {
+  description = "(Required)" #The location for the resource
+  type        = string
+  default     = "aw-il4" # either a single region or country code
+  }
 
 
 
@@ -95,12 +99,12 @@ variable "network_zone" {
 
 
 variable "crypto_key_name" {
-    type    = string
+  type    = string
   default = "crypto_key"
 }
 
 variable "key_ring_name" {
-    type    = string
+  type    = string
   default = "ring"
 }
 
@@ -109,7 +113,7 @@ variable "key_ring_name" {
 variable "policy_name" {
   description = "The policy's name."
   type        = string
-  default = "automatic_folder"
+  default     = "automatic_folder"
 }
 
 
@@ -125,18 +129,29 @@ variable "perimeter_name" {
 variable "restricted_services" {
   description = "List of services to restrict."
   type        = list(string)
-    default = [
+  default = [
     "storage.googleapis.com",
     "logging.googleapis.com",
     "compute.googleapis.com",
-#    "bigquery.googleapis.com",
-    ]
+    "bigquery.googleapis.com",
+  ]
 }
 
 variable "new_services" {
-  description = "List of new services to restrict that are recently approved to assured workloads"
+  description = "List of new services to restrict that are recently approved to assured workloads but not allowed default"
   type        = set(string)
+  default = [
+    "bigquery.googleapis.com",
+  ]
+}
+
+
+variable "enforced_regional_access" {
+    description = "CountryRegion "
+    type = list(string)
     default = [
-       "bigquery.googleapis.com",
-    ]
+        "US", # USA
+        "CA", # Canada
+        "UM", #  US Minor Outlying Islands
+        ]
 }

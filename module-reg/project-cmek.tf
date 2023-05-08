@@ -24,7 +24,7 @@
 resource "google_project_service" "cmek_api_service" {
   for_each = toset([
     "cloudkms.googleapis.com",
-     ])
+  ])
 
   service = each.key
 

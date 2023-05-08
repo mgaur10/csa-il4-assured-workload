@@ -46,3 +46,20 @@ resource "google_compute_subnetwork" "regular_workload_subnetwork" {
     google_compute_network.regular_workload_network,
   ]
 }
+
+
+# Enable SSH through IAP
+resource "google_compute_firewall" "allow_iap_proxy" {
+  name      = "allow-iap-proxy"
+  network   = google_compute_network.regular_workload_network.self_link
+  project   = var.project_id
+  direction = "INGRESS"
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = ["35.235.240.0/20"]
+  depends_on = [
+    google_compute_network.regular_workload_network
+  ]
+}

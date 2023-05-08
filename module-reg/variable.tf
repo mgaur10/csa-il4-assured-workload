@@ -30,25 +30,25 @@ variable "folder_id" {
 
 variable "cmek_project_id" {
 
- }
+}
 
-variable  "key_ring_name" {
+variable "key_ring_name" {
 
 }
- variable "project_id" {
+variable "project_id" {
 
- }
+}
 
- variable "project_number" {
+variable "project_number" {
 
- }
- variable "project_name" {
+}
+variable "project_name" {
 
- }
+}
 
- variable "bucket_name" {
+variable "bucket_name" {
 
- }
+}
 
 variable "random_string" {
 }

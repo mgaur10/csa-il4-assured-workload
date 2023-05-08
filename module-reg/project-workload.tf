@@ -21,8 +21,8 @@
 # Wait delay after after project destroy
 resource "time_sleep" "wait_reg_project_creation" {
 
-  create_duration  = "60s"
-  destroy_duration = "60s"
+  create_duration  = "15s"
+  destroy_duration = "15s"
 }
 
 

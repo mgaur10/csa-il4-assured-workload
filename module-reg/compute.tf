@@ -19,6 +19,48 @@
 ##  This is not built for production workload ##
 
 
+
+
+resource "google_kms_crypto_key_iam_member" "kms_key_access_compute" {
+  crypto_key_id = google_kms_crypto_key.kms_key.id
+  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+
+  member = "serviceAccount:service-${var.project_number}@compute-system.iam.gserviceaccount.com"
+  depends_on = [
+    google_kms_crypto_key.kms_key,
+    time_sleep.wait_enable_regular_workload_api_service,
+  ]
+
+}
+
+
+
+# Wait delay 
+resource "time_sleep" "wait_compute_iam" {
+  create_duration  = "45s"
+  destroy_duration = "15s"
+  depends_on       = [google_kms_crypto_key_iam_member.kms_key_access_compute]
+}
+
+resource "google_compute_disk" "persistant_disk" {
+  project = var.project_id
+  name    = "persistant-disk"
+  type    = "pd-ssd"
+  zone    = var.network_zone
+  size    = 30
+  labels = {
+    environment = "p-disk"
+  }
+  physical_block_size_bytes = 4096
+  disk_encryption_key {
+    kms_key_self_link = google_kms_crypto_key.kms_key.id
+  }
+  depends_on = [
+    time_sleep.wait_compute_iam,
+  ]
+}
+
+
 #Create the service Account
 resource "google_service_account" "def_ser_acc" {
   project      = var.project_id
@@ -27,52 +69,10 @@ resource "google_service_account" "def_ser_acc" {
   depends_on   = [google_project_service.regular_workload_api_service]
 }
 
-
-
-resource "google_kms_crypto_key_iam_binding" "kms_key_access_compute" {
-  crypto_key_id = "${google_kms_crypto_key.kms_key.id}"
-  role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-
-   members = ["serviceAccount:service-${var.project_number}@compute-system.iam.gserviceaccount.com"]
-    depends_on   = [
-        google_kms_crypto_key.kms_key,
-    time_sleep.wait_enable_regular_workload_api_service,
-    ]
-
-}
-
-
-
-# Wait delay 
-resource "time_sleep" "wait_compute_iam" {
-  create_duration  = "120s"
-  destroy_duration = "15s"
-  depends_on = [google_kms_crypto_key_iam_binding.kms_key_access_compute]
-}
-
-resource "google_compute_disk" "persistant_disk" {
-      project      = var.project_id
-  name  = "persistant-disk"
-  type  = "pd-ssd"
-  zone  = var.network_zone
-  size = 30
-  labels = {
-    environment = "p-disk"
-  }
-  physical_block_size_bytes = 4096
-  disk_encryption_key {
-    kms_key_self_link = google_kms_crypto_key.kms_key.id
-  }
-    depends_on   = [
-        time_sleep.wait_compute_iam,
-      ]
-}
-
-/*
 # Create Compute Instance 
 resource "google_compute_instance" "debian_server" {
   project      = var.project_id
-  name         = "debian-server"
+  name         = "compute-instance"
   machine_type = "f1-micro"
   zone         = var.network_zone
 
@@ -81,8 +81,6 @@ resource "google_compute_instance" "debian_server" {
     enable_secure_boot          = true
     enable_vtpm                 = true
   }
-
-
 
   boot_disk {
     initialize_params {
@@ -94,7 +92,6 @@ resource "google_compute_instance" "debian_server" {
   network_interface {
     network    = google_compute_network.regular_workload_network.self_link
     subnetwork = google_compute_subnetwork.regular_workload_subnetwork.self_link
-
   }
 
   service_account {
@@ -102,25 +99,22 @@ resource "google_compute_instance" "debian_server" {
     email  = google_service_account.def_ser_acc.email
     scopes = ["cloud-platform"]
   }
-  metadata_startup_script = "sudo apt-get update -y;sudo apt-get install -y git;"
+
 
   labels = {
-    asset_type  = "aw_compute_instance"
-   
+    asset_type = "aw_compute_instance"
+
   }
 
 
-attached_disk {
+  attached_disk {
     source = google_compute_disk.persistant_disk.self_link
-}
+  }
 
 
-    depends_on = [
-    time_sleep.wait_enable_regular_workload_api_service,
-    google_service_account.def_ser_acc,
-    google_kms_crypto_key_iam_binding.kms_key_access_compute,
+  depends_on = [
     google_compute_disk.persistant_disk,
-    time_sleep.wait_compute_iam,
   ]
 }
-*/
+
+

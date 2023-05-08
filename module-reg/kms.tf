@@ -23,7 +23,7 @@
 resource "google_kms_key_ring" "keyring" {
   name     = var.key_ring_name
   location = var.network_region
-  project = var.cmek_project_id
+  project  = var.cmek_project_id
 
   depends_on = [time_sleep.wait_enable_cmek_api_service]
 
@@ -32,13 +32,13 @@ resource "google_kms_key_ring" "keyring" {
 
 
 # Cretae crypto key
-  resource "google_kms_crypto_key" "kms_key" {
-    name            = var.crypto_key_name
-    key_ring        = google_kms_key_ring.keyring.id
+resource "google_kms_crypto_key" "kms_key" {
+  name            = var.crypto_key_name
+  key_ring        = google_kms_key_ring.keyring.id
   rotation_period = "10368000s" #120 days
 
   lifecycle {
     prevent_destroy = false ## For actual workload, change to true
   }
-    depends_on = [google_kms_key_ring.keyring]
-  }  
+  depends_on = [google_kms_key_ring.keyring]
+}

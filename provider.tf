@@ -22,15 +22,11 @@
 
 terraform {
   required_version = ">= 0.13"
-  
 }
 
 
-provider "google" {
-  alias = "service"
-user_project_override = true
-billing_project = google_project.aw_mgmt_project_id.project_id
-
-
-  
+provider "google-beta" {
+  alias                 = "service"
+  user_project_override = true
+  billing_project       = google_project.aw_mgmt_project_id.project_id
 }

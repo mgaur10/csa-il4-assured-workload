@@ -19,27 +19,36 @@
 ##  This is not built for production workload ##
 
 data "google_storage_project_service_account" "gcs_account" {
-    project       = var.project_id
+  project = var.project_id
+}
+
+
+# Wait delay after after project destroy
+resource "time_sleep" "wait_gcs_agent" {
+  create_duration = "15s"
+  #  destroy_duration = "15s"
+  depends_on = [data.google_storage_project_service_account.gcs_account]
 }
 
 
 
-resource "google_kms_crypto_key_iam_binding" "kms_key_access_storge" {
+resource "google_kms_crypto_key_iam_member" "kms_key_access_storge" {
   crypto_key_id = google_kms_crypto_key.kms_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
 
-  members = ["serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"]
- depends_on                  = [
-     time_sleep.wait_enable_regular_workload_api_service,
- ]
+  member = "serviceAccount:${data.google_storage_project_service_account.gcs_account.email_address}"
+  depends_on = [
+    time_sleep.wait_enable_regular_workload_api_service,
+    time_sleep.wait_gcs_agent
+  ]
 }
 
 
 # Wait delay after after project destroy
 resource "time_sleep" "wait_storage_iam" {
-  create_duration  = "120s"
+  create_duration  = "45s"
   destroy_duration = "15s"
-  depends_on = [google_kms_crypto_key_iam_binding.kms_key_access_storge]
+  depends_on       = [google_kms_crypto_key_iam_member.kms_key_access_storge]
 }
 
 
@@ -54,8 +63,9 @@ resource "google_storage_bucket" "regular_workload_bucket_name" {
   encryption {
     default_kms_key_name = google_kms_crypto_key.kms_key.id
   }
-  depends_on                  = [
+  depends_on = [
     time_sleep.wait_storage_iam,
+    google_kms_crypto_key_iam_member.kms_key_access_storge,
   ]
 }
 
