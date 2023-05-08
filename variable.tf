@@ -21,21 +21,21 @@
 variable "organization_id" {
   description = "(Required)" #The organization for the resource
   type        = string
-  default     = "873180247571"
+  default     = "XXXXXXXX"
 }
 
 
 variable "billing_account" {
   description = "(Required)" #Required. Input only. The billing account used for the resources which are direct children of workload. This billing account is initially associated with the resources created as part of Workload creation. After the initial creation of these resources, the customer can change the assigned billing account. The resource name has the form `billingAccounts/{billing_account_id}`. For example, 'billingAccounts/012345-567890-ABCDEF`.
   type        = string
-  default     = "01660F-E4C304-5C8D2B"
+  default     = "XXXXX-XXXXX-XXXXXX"
 }
 
 
 variable "members" {
   description = "An allowed list of members (users, service accounts). The signed-in identity originating the request must be a part of one of the provided members. If not specified, a request may come from any user (logged in/not logged in, etc.). Formats: user:{emailid}, serviceAccount:{emailid}"
   type        = list(string)
-  default     = ["user:admin@manishkgaur.altostrat.com"]
+  default     = ["user:username@domain.com"]
 }
 
 variable "aw_mgmt_project_id" {
@@ -50,7 +50,7 @@ variable "aw_mgmt_project_id" {
 variable "app_folder_name" {
   description = "(Required)" #Required. The user-assigned display name top folder for application/department/workload. When present it must be between 4 to 30 characters. Allowed characters are: lowercase and uppercase letters, numbers, hyphen, and spaces. Example: My Workload
   type        = string
-  default     = "ABC-APPLICATION-US"
+  default     = "CSA SpringBoard AW"
 }
 
 
