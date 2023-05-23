@@ -110,7 +110,7 @@ Members = ["user:name@domain.com"]
 
 1. To find your organization id and billing_id, run the following command.
 
-   ```
+```
 gcloud projects get-ancestors [ANY_PROJECT_ID_IN_ORG]
 
 gcloud alpha billing accounts list
